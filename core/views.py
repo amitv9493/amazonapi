@@ -12,20 +12,3 @@ def home(request):
     return render(request, "index.html")
 
     # return redirect("login")
-
-
-def authorize(request):
-    return HttpResponse("hello")
-
-
-def login(request):
-    username = request.POST.get("username")
-    password = request.POST.get("password")
-    print(request.user)
-    user = authenticate(username=username, password=password)
-    print(user)
-    if user:
-        return redirect("home")
-
-    else:
-        return render(request, "login.html")

@@ -43,28 +43,7 @@ class LoginView(APIView):
             user = serializer.validated_data["user"]
 
             login(request, user)
-            token = Token()
-            token.user_data = user.cred
-            token.initial_data()
-
-            if len(user.cred.refresh_token) > 0:
-                token.GenerateAccessToken(grant_type="refresh_token")
-                token_validity = datetime.datetime.now() + datetime.timedelta(seconds=3600)
-            
-            data = {
-                "user_id": user.id,
-                "access_token": token.access_token,
-                "refresh_token": token.refresh_token,
-                "market_place_id": user.cred.market_place_id,
-                "validity": token_validity.isoformat(),
-            }
-            
-            save_data_to_session(request, **data)
-            return Response(
-                {"detail": "login Successful"},
-                status=status.HTTP_200_OK,
-            )
-
+            return Response({"detail": "Successfully logged in"}, status=200)
 
 def logout_view(request):
     if not request.user.is_authenticated:
@@ -97,8 +76,9 @@ class save_credentials(APIView):
         data = request.query_params
         code = data.get("spapi_oauth_code")
         selling_partner_id = data.get("selling_partner_id")
+        print(selling_partner_id)
         state = int(data.get("state"))
-
+        print(code)
         user = get_user_model().objects.get(id=state)
 
         cred, _ = user_credentials.objects.get_or_create(user=user)
@@ -111,9 +91,9 @@ class save_credentials(APIView):
         try:
             token.GenerateAccessToken(grant_type="authorization_code")
 
-        except:
+        except ValueError as e:
             return Response(
-                {"msg": "Authorization failed Please re authorize"}, status=400
+                {"msg": f"Authorization failed Please re authorize {e}"}, status=400
             )
 
         cred.refresh_token = token.refresh_token
@@ -121,6 +101,7 @@ class save_credentials(APIView):
         data = {
             "refresh_token" : token.refresh_token,
             "access_token" : token.access_token,
+            "validity": token.validity,
         }
         
         save_data_to_session(request, **data)

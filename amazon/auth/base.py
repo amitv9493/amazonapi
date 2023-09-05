@@ -1,5 +1,6 @@
 import os
 import requests
+from datetime import timedelta
 
 from datetime import datetime
 class Token:
@@ -38,7 +39,7 @@ class Token:
         response = requests.post(self.url, headers=self.headers, data=payload)
 
         token_data = response.json()
-    
+        print(token_data)
         if token_data.get("error"):
             raise ValueError(f"Got this error \
                              {token_data.get('error')} \
@@ -52,7 +53,7 @@ class Token:
                 "refresh_token"
             )
             
-            self.validity = (datetime.now() + datetime.timedelta(seconds=3600)).isoformat()
+            self.validity = (datetime.now() + timedelta(seconds=3600)).isoformat()
 
     @property
     def access_token(self) -> str:
