@@ -1,8 +1,7 @@
 import os
-from rest_framework.response import Response
-
 import requests
 
+from datetime import datetime
 class Token:
     url = "https://api.amazon.com/auth/o2/token"
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -13,16 +12,23 @@ class Token:
         self._user_data = None
         self._access_token = None
         self._refresh_token = None
-        
+        self.validity = None
         
     def initial_data(self):
-        self._access_token = self._user_data.access_token
-        self._refresh_token = self._user_data.refresh_token  
-
+        try:
+            self._access_token = self._user_data.access_token
+            self._refresh_token = self._user_data.refresh_token  
+        except:
+            pass
+        
+        return self
+        
     def GenerateAccessToken(self, grant_type: str) -> None:
+        
         if grant_type == "authorization_code":
             token = self._user_data.code
             type = "code"
+            
         elif grant_type == "refresh_token":
             token = self._user_data.refresh_token
             type = "refresh_token"
@@ -32,16 +38,21 @@ class Token:
         response = requests.post(self.url, headers=self.headers, data=payload)
 
         token_data = response.json()
-
+    
         if token_data.get("error"):
-            return Response(token_data, status=400)
-
-        self._access_token = token_data.get(
-            "access_token"
-        )
-        self._refresh_token = token_data.get(
-            "refresh_token"
-        )
+            raise ValueError(f"Got this error \
+                             {token_data.get('error')} \
+                             with status code {response.status_code}")
+        
+        elif response.status_code == 200:
+            self._access_token = token_data.get(
+                "access_token"
+            )
+            self._refresh_token = token_data.get(
+                "refresh_token"
+            )
+            
+            self.validity = (datetime.now() + datetime.timedelta(seconds=3600)).isoformat()
 
     @property
     def access_token(self) -> str:
@@ -56,6 +67,6 @@ class Token:
         return self._user_data
     
     @user_data.setter
-    def user_data(self,user_data):
+    def user_data(self,user_data:object):
         self._user_data = user_data
         

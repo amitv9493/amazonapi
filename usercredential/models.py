@@ -15,7 +15,7 @@ class user_credentials(models.Model):
         United_Kingdom = "A1F83G8C2ARO7P"
         sandbox = "ATVPDKIKX0DER"
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cred")
     code = models.CharField(max_length=255, null=True)
     selling_partner_id = models.CharField(max_length=255, null=True)
 
@@ -39,3 +39,7 @@ class user_credentials(models.Model):
             return False
         else:
             return True
+    
+    
+    class Meta:
+        verbose_name_plural = "User Credentials"
