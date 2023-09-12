@@ -16,30 +16,14 @@ def get_first_order(request,created_after:str=None,params={}):
         created_after = datetime.datetime.now() - datetime.timedelta(weeks=1)
         created_after = created_after.isoformat()
         
-    url = f"https://sellingpartnerapi-eu.amazon.com/orders/v0/orders/?MarketplaceIds={request.session['market_place_id']}&CreatedAfter={created_after}"
-    sandbox_url = f"https://sandbox.sellingpartnerapi-eu.amazon.com/orders/v0/orders?MarketplaceIds={user_data.market_place_id}&CreatedAfter=TEST_CASE_200"
+    url = f"https://sellingpartnerapi-eu.amazon.com/orders/v0/orders/?MarketplaceIds={user_data.market_place_id}&CreatedAfter={created_after}"
+    sandbox_url = f"https://sandbox.sellingpartnerapi-eu.amazon.com/orders/v0/orders?MarketplaceIds=ATVPDKIKX0DER&CreatedAfter=TEST_CASE_200"
     
     
-    response_data = requests.get(url, headers=headers, data=payload, params=params)
+    response_data = requests.get(sandbox_url, headers=headers, data=payload, params=params)
     
-    if 400 <= response_data.status_code <= 499:
-        token = Token()
-        token.user_data = user_data
-        token.GenerateAccessToken(grant_type="refresh_token")
-        
-        request.session["access_token"] = token.access_token
-        user_data.access_token = token.access_token
-        user_data.save()
-        
-        request.session.modified = True
-        
-        print(request.session["access_token"]) 
-                    
-        data = requests.get(url, headers={"x-amz-access-token": token.access_token}, data=payload, params=params)
-        response_data = data
-        
     if response_data.status_code != 200:
-        raise Exception("Error in getting orders Try Again")
+        raise Exception(response_data.json())
     
     return response_data
     

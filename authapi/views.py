@@ -31,11 +31,6 @@ class LoginView(APIView):
     authentication_classes = []
     permission_classes = []
 
-    def get(self, request, format=None):
-        if request.user.is_authenticated:
-            return Response({"detail": "Already Logged in"}, status=400)
-        else:
-            return Response({"detail": "Not Logged in"}, status=200)
 
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)

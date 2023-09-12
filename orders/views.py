@@ -14,13 +14,6 @@ class AllOrdersView(APIView):
     pagination_class = PageNumberPagination
 
     def get(self, request, format=None):
-        if  datetime.now() >=datetime.fromisoformat(request.session["validity"]):
-            token = Token()
-            token.user_data = request.user.cred
-            token.GenerateAccessToken(grant_type="refresh_token")
-            
-            data = {"access_token": token.access_token, "validity": token.validity}
-            save_data_to_session(request, **data)
             
         first_response = get_first_order(request)
         order_data = get_full_orders(request, first_response)

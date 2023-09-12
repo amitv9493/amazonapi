@@ -39,7 +39,7 @@ class Token:
         response = requests.post(self.url, headers=self.headers, data=payload)
 
         token_data = response.json()
-        print(token_data)
+        # print(token_data)
         if token_data.get("error"):
             raise ValueError(f"Got this error \
                              {token_data.get('error')} \
