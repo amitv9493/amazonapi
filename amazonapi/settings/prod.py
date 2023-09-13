@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': os.environ.get('db_name'),
         'USER': os.environ.get('user'),
         'PASSWORD': os.environ.get('password'),
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'HOST': '69.10.43.179',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
