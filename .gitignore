@@ -8,6 +8,10 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.ssh
+.ssh/
+ssh/
+ssh
 build/
 develop-eggs/
 dist/
