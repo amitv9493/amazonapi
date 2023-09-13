@@ -1,0 +1,1 @@
+from amazonapi.wsgi import application
