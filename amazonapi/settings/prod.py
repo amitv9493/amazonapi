@@ -12,4 +12,4 @@ DATABASES = {
 STATIC_URL = "static/"
 MEDIA_URL = "media/"
 
-STATIC_ROOT = '/home/shipping/domains/shippingmart.co.uk/public_html'
+STATIC_ROOT = '/home/shipping/domains/shippingmart.co.uk/public_html/static'
