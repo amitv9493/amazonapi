@@ -35,3 +35,8 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     )
 }
+
+
+
+CSRF_COOKIE_HTTPONLY =False
+SESSION_COOKIE_HTTPONLY = False
