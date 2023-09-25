@@ -15,44 +15,39 @@ import time
 from core.utils import save_data_to_session
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import decorators
-import json
-from django.views.decorators.http import require_POST
-from django.contrib.auth import authenticate
 import datetime
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 # Create your views here.
 
-@csrf_exempt
-@decorators.permission_classes([])
-@decorators.authentication_classes([])
+@ensure_csrf_cookie
 def get_csrf(request):
     response = JsonResponse({"detail": "CSRF cookie set"})
     response["X-CSRFToken"] = get_csrf_token(request)
     return response
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class LoginView(APIView):
+    authentication_classes = []
+    permission_classes = []
 
-@require_POST
-def login_view(request):
-    data = json.loads(request.body)
-    username = data.get('username')
-    password = data.get('password')
 
-    if username is None or password is None:
-        return JsonResponse({'detail': 'Please provide username and password.'}, status=400)
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data["user"]
 
-    user = authenticate(username=username, password=password)
+            login(request, user)
+            return Response({"detail": "Successfully logged in"}, status=200)
 
-    if user is None:
-        return JsonResponse({'detail': 'Invalid credentials.'}, status=400)
+class LogoutView(APIView):
+    
+    def post(self, request, format=None):
+        if not request.user.is_authenticated:
+            return Response({"detail": "You're not logged in."}, status=400)
 
-    login(request, user)
-    return JsonResponse({'detail': 'Successfully logged in.'})
-        
-def logout_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
-
-    logout(request)
-    return JsonResponse({'detail': 'Successfully logged out.'})
+        logout(request)
+        return Response({"detail": "Successfully logged out."}, status=200)
 
 
 class authenticate_amazon(APIView):

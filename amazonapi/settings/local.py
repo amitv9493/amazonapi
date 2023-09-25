@@ -13,10 +13,3 @@ STATIC_URL = "static/"
 
 INSTALLED_APPS += ["django_extensions"]
 
-
-
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
-}
