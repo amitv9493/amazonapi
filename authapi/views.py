@@ -42,12 +42,12 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     
-    def post(self, request, format=None):
-        if not request.user.is_authenticated:
-            return Response({"detail": "You're not logged in."}, status=400)
-
+    authentication_classes = [authentication.SessionAuthentication]
+    
+    def get(self, request, format=None):
         logout(request)
         return Response({"detail": "Successfully logged out."}, status=200)
+    
 
 
 class authenticate_amazon(APIView):
