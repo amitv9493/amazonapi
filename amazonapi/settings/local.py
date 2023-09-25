@@ -12,3 +12,9 @@ STATIC_URL = "static/"
 
 
 INSTALLED_APPS += ["django_extensions"]
+
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_RESPONSE_CLASS": "rest_framework.response.JSONResponse",
+}
