@@ -39,13 +39,16 @@ class LoginView(APIView):
 
             login(request, user)
             return Response({"detail": "Successfully logged in"}, status=200)
-
-def logout_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"detail": "You're not logged in."}, status=400)
-
-    logout(request)
-    return JsonResponse({"detail": "Successfully logged out."}, status=200)
+      
+        
+class LogoutView(APIView):
+    
+    authentication_classes = [authentication.SessionAuthentication]
+    
+    def get(self, request, format=None):
+        logout(request)
+        return Response({"detail": "Successfully logged out."}, status=200)
+    
 
 
 class authenticate_amazon(APIView):
