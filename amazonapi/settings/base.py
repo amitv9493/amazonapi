@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "users",
     "authapi",
     "corsheaders",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
