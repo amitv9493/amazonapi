@@ -5,6 +5,7 @@ from amazon.auth.base import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
+from django.http import HttpResponse
 from rest_framework import permissions, authentication
 from django.contrib.auth import get_user_model, login, logout
 import os
@@ -16,39 +17,38 @@ from core.utils import save_data_to_session
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import decorators
 import datetime
-from django.utils.decorators import method_decorator
+from django.utils import decorators
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import authenticate
+from django.views.decorators.http import require_http_methods
 # Create your views here.
-
-@ensure_csrf_cookie
-def get_csrf(request):
-    response = JsonResponse({"detail": "CSRF cookie set"})
-    response["X-CSRFToken"] = get_csrf_token(request)
+def csrf_token(request):
+    response = HttpResponse()
+    csrf = get_csrf_token(request)
+    response.set_cookie(key='csrftoken', value=csrf)
     return response
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class LoginView(APIView):
-    authentication_classes = []
-    permission_classes = []
 
-
-    def post(self, request, format=None):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.validated_data["user"]
-
-            login(request, user)
-            return Response({"detail": "Successfully logged in"}, status=200)
-
-class LogoutView(APIView):
+@require_http_methods(["POST"])
+def LoginView(request):
+    username = request.POST.get("username")
+    password = request.POST.get("password")
     
-    authentication_classes = [authentication.SessionAuthentication]
+    user = authenticate(username=username, password=password)
     
-    def get(self, request, format=None):
-        logout(request)
-        return Response({"detail": "Successfully logged out."}, status=200)
+    if not user:
+        return JsonResponse({"msg": "Invalid credentials"}, status=400)
     
+    else:
+        login(request, user)
+        return JsonResponse({"msg": "Logged in successfully"}, status=200)
+        
 
+def LogoutView(request):
+    logout(request)
+    return JsonResponse({"msg": "Logged out successfully"}, status=200)
+
+    
 
 class authenticate_amazon(APIView):
     permission_classes = [
