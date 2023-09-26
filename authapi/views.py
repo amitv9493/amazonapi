@@ -11,16 +11,22 @@ from core.utils import save_data_to_session
 from rest_framework import decorators
 from django.utils import decorators
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 # Create your views here.
 
 @decorators.method_decorator(ensure_csrf_cookie, name='dispatch')
 class GetCSRFToken(APIView):
     permission_classes = [permissions.AllowAny,]
-    
     def get(self, request, format=None):
-        return Response({"csrfToken":"CSRF cookie set"}, 200)
+        
+        get_csrf = get_token(request)
+        token = request.COOKIES.get('csrftoken')
+        return Response({"csrfToken":get_csrf
+                         
+                         }, 200)
     
 @decorators.method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginView(APIView):
@@ -36,7 +42,11 @@ class LoginView(APIView):
         
         if user:
             login(request, user)
-            return Response({"success": "Successfully logged in"}, status=200)
+            print()
+            return Response({"success": "Successfully logged in",
+                             "sessionid":request.session.session_key,
+                             "csrftoken":request.COOKIES.get('csrftoken')
+                             }, status=200)
         
         else:
             return Response({"error": "Invalid credentials"}, status=400)
@@ -59,7 +69,7 @@ class authenticate_amazon(APIView):
     permission_classes = [
         permissions.IsAuthenticated,
     ]
-    authentication_classes = [authentication.SessionAuthentication]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         url_base = f"https://sellercentral.amazon.in/apps/authorize/consent?application_id={os.getenv('LWA_APP_ID')}&state={request.user.id}&version=beta"
