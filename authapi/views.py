@@ -4,51 +4,56 @@ from usercredential.models import user_credentials
 from amazon.auth.base import Token
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import JsonResponse
-from django.http import HttpResponse
 from rest_framework import permissions, authentication
 from django.contrib.auth import get_user_model, login, logout
 import os
-from .serializers import LoginSerializer
-from rest_framework import status
-from django.middleware.csrf import get_token as get_csrf_token
-import time
 from core.utils import save_data_to_session
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import decorators
-import datetime
 from django.utils import decorators
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate
-from django.views.decorators.http import require_http_methods
+
 # Create your views here.
-def csrf_token(request):
-    response = HttpResponse()
-    csrf = get_csrf_token(request)
-    response.set_cookie(key='csrftoken', value=csrf)
-    return response
+
+@decorators.method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(APIView):
+    permission_classes = [permissions.AllowAny,]
+    
+    def get(self, request, format=None):
+        return Response({"csrfToken":"CSRF cookie set"}, 200)
+    
+@decorators.method_decorator(ensure_csrf_cookie, name='dispatch')
+class LoginView(APIView):
+    authentication_classes = []
+    permission_classes = []
 
 
-@require_http_methods(["POST"])
-def LoginView(request):
-    username = request.POST.get("username")
-    password = request.POST.get("password")
+    def post(self, request, format=None):
+        
+        username  = request.data.get("username")
+        password  = request.data.get("password")
+        user = authenticate(username=username, password=password)
+        
+        if user:
+            login(request, user)
+            return Response({"success": "Successfully logged in"}, status=200)
+        
+        else:
+            return Response({"error": "Invalid credentials"}, status=400)
+   
+   
+@decorators.method_decorator(ensure_csrf_cookie, name='dispatch')  
+class LogoutView(APIView):
     
-    user = authenticate(username=username, password=password)
-    
-    if not user:
-        return JsonResponse({"msg": "Invalid credentials"}, status=400)
-    
-    else:
-        login(request, user)
-        return JsonResponse({"msg": "Logged in successfully"}, status=200)
+    def post(self, request, format):
+        try:
+            logout(request)
+            return Response({"detail": "logged out."}, status=200)
+        
+        except Exception as e:
+            return Response({"error":"Something went wrong"}, status=400)
         
 
-def LogoutView(request):
-    logout(request)
-    return JsonResponse({"msg": "Logged out successfully"}, status=200)
-
-    
 
 class authenticate_amazon(APIView):
     permission_classes = [

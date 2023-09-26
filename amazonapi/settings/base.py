@@ -91,14 +91,14 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated"
-    ]
-}
+# REST_FRAMEWORK = {
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "rest_framework.authentication.SessionAuthentication",
+#     ],
+#     "DEFAULT_PERMISSION_CLASSES": [
+#         "rest_framework.permissions.IsAuthenticated"
+#     ]
+# }
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -110,8 +110,6 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 # SESSION_COOKIE_DOMAIN = 'localhost:3000/'
 CSRF_COOKIE_HTTPONLY =False
 SESSION_COOKIE_HTTPONLY = False
-
-# CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
 
 # # PROD ONLY
 # # CSRF_COOKIE_SECURE = True
